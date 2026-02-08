@@ -74,7 +74,7 @@ The main workspace for secure communication.
 
 ### **2. [INTEL] Dashboard (HUD)**
 Real-time operational metrics for situational awareness.
-*   **Network Graphs:** Live upload/download traffic visualization (Sparklines).
+*   **System Logs:** Live feed of system events and alerts.
 *   **Status Panel:**
     *   **CIPHER:** `KYBER-1024` (Green = Secure).
     *   **IDENTITY:** `Ghost @ Ops` (Shows current persona).
@@ -162,17 +162,19 @@ When creating an identity (`.id`), you must set **two** passwords:
 
 ---
 
-## ⚡ Command Reference
+##  Command Reference
 
 | Command | Description |
 | :--- | :--- |
 | `/msg <user> <txt>` | Direct Message (DM). |
+| `/search <query>` | Search chat history. |
 | `/ttl <user> <sec> <txt>` | **Self-Destructing Message**. |
 | `/send <file>` | Secure file transfer (encrypted/padded). |
 | `/get <id>` | Download offered file. |
 | `/browse` | Open interactive file picker for uploads. |
 | `/vault_put <file>` | Move file to **Hidden Vault**. |
 | `/vault_get <file>` | Extract file from **Hidden Vault**. |
+| `/vault_list` | List files in **Hidden Vault**. |
 | `/nuke` | **PANIC PROTOCOL:** Send distress signal + Wipe Data. |
 | `Ctrl+c` | Safe Quit. |
 | `Ctrl+x` | **PANIC PROTOCOL** (Instant). |
