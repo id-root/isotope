@@ -1,6 +1,6 @@
-# ==============================================================================
-#  ISOTOPE — Automated Installer & Setup Script (Windows PowerShell)
-#  v4.0.0 — Post-Quantum Secure Messaging over Tor
+﻿﻿# ==============================================================================
+#  ISOTOPE - Automated Installer & Setup Script (Windows PowerShell)
+#  v4.0.0 - Post-Quantum Secure Messaging over Tor
 #  Run as Administrator in PowerShell:  .\install.ps1
 # ==============================================================================
 
@@ -12,44 +12,43 @@ param(
     [switch]$SkipInstall
 )
 
-# ── Strict mode ────────────────────────────────────────────────────────────────
+# -- Strict mode ----------------------------------------------------------------
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Colors and helpers ─────────────────────────────────────────────────────────
+# -- Colors and helpers ---------------------------------------------------------
 function Write-Info    { param([string]$Msg) Write-Host "[INFO]  $Msg" -ForegroundColor Cyan }
 function Write-Success { param([string]$Msg) Write-Host "[OK]    $Msg" -ForegroundColor Green }
 function Write-Warn    { param([string]$Msg) Write-Host "[WARN]  $Msg" -ForegroundColor Yellow }
 function Write-Fail    { param([string]$Msg) Write-Host "[ERROR] $Msg" -ForegroundColor Red; exit 1 }
-function Write-Step    { param([string]$Msg) Write-Host "`n══ $Msg " -ForegroundColor Cyan -NoNewline; Write-Host "" }
-function Write-Divider { Write-Host ("─" * 52) -ForegroundColor DarkGray }
+function Write-Step    { param([string]$Msg) Write-Host "`n== $Msg " -ForegroundColor Cyan -NoNewline; Write-Host "" }
+function Write-Divider { Write-Host ("-" * 52) -ForegroundColor DarkGray }
 
 function Write-Banner {
     Write-Host @"
 
-  ██╗███████╗ ██████╗ ████████╗ ██████╗ ██████╗ ███████╗
-  ██║██╔════╝██╔═══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝
-  ██║███████╗██║   ██║   ██║   ██║   ██║██████╔╝█████╗
-  ██║╚════██║██║   ██║   ██║   ██║   ██║██╔═══╝ ██╔══╝
-  ██║███████║╚██████╔╝   ██║   ╚██████╔╝██║     ███████╗
-  ╚═╝╚══════╝ ╚═════╝    ╚═╝    ╚═════╝ ╚═╝     ╚══════╝
+  ___  ____   ___ _____ ___  ____  _____ 
+ |_ _|/ ___| / _ \_   _/ _ \|  _ \| ____|
+  | | \___ \| | | || || | | | |_) |  _|  
+  | |  ___) | |_| || || |_| |  __/| |___ 
+ |___|____/ \___/ |_| \___/|_|   |_____|
 
-       Post-Quantum Secure Messaging over Tor — v4.0.0
+       Post-Quantum Secure Messaging over Tor - v4.0.0
        Automated Installer for Windows
 "@ -ForegroundColor Magenta
 }
 
-# ── Check if running as Administrator ─────────────────────────────────────────
+# -- Check if running as Administrator -----------------------------------------
 function Test-Admin {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal]$identity
     return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
-# ── Detect Script Root ─────────────────────────────────────────────────────────
+# -- Detect Script Root ---------------------------------------------------------
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-# ── Install Chocolatey (package manager) ───────────────────────────────────────
+# -- Install Chocolatey (package manager) ---------------------------------------
 function Install-Choco {
     Write-Step "Checking Chocolatey Package Manager"
     if (Get-Command choco -ErrorAction SilentlyContinue) {
@@ -65,7 +64,7 @@ function Install-Choco {
     Write-Success "Chocolatey installed."
 }
 
-# ── Install Git ────────────────────────────────────────────────────────────────
+# -- Install Git ----------------------------------------------------------------
 function Install-Git {
     Write-Step "Checking Git"
     if (Get-Command git -ErrorAction SilentlyContinue) {
@@ -78,7 +77,7 @@ function Install-Git {
     Write-Success "Git installed."
 }
 
-# ── Install Rust ───────────────────────────────────────────────────────────────
+# -- Install Rust ---------------------------------------------------------------
 function Install-Rust {
     Write-Step "Checking Rust Toolchain"
     if (Get-Command cargo -ErrorAction SilentlyContinue) {
@@ -100,7 +99,7 @@ function Install-Rust {
     Write-Success "Rust installed: $(cargo --version)"
 }
 
-# ── Install Visual Studio Build Tools (required for Rust MSVC) ────────────────
+# -- Install Visual Studio Build Tools (required for Rust MSVC) ----------------
 function Install-BuildTools {
     Write-Step "Checking Visual Studio Build Tools"
     $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -130,7 +129,7 @@ function Install-BuildTools {
     Write-Success "Visual Studio Build Tools installed."
 }
 
-# ── Install & Configure Tor ────────────────────────────────────────────────────
+# -- Install & Configure Tor ----------------------------------------------------
 function Install-Tor {
     if ($SkipTor) { Write-Warn "Skipping Tor setup (--SkipTor flag)."; return }
 
@@ -185,7 +184,7 @@ DataDirectory $TorDataDir
     # Create a Tor startup script
     $TorStartScript = "$ScriptRoot\start-tor.ps1"
     @"
-# ISOTOPE — Start Tor Service (Windows)
+# ISOTOPE - Start Tor Service (Windows)
 Write-Host "[*] Starting Tor..." -ForegroundColor Cyan
 Write-Host "[*] Waiting for Tor to bootstrap (100%)..."
 Write-Host "[*] Leave this window open while using ISOTOPE." -ForegroundColor Yellow
@@ -196,12 +195,12 @@ Write-Host "[*] Leave this window open while using ISOTOPE." -ForegroundColor Ye
     Write-Warn "Start Tor first with: .\start-tor.ps1  (keep it running in a separate window)"
 }
 
-# ── Build ISOTOPE ──────────────────────────────────────────────────────────────
+# -- Build ISOTOPE --------------------------------------------------------------
 function Build-Isotope {
     if ($SkipBuild) { Write-Warn "Skipping build (--SkipBuild flag)."; return }
 
     Write-Step "Building ISOTOPE (Release Mode)"
-    Write-Info "Compiling cryptographic dependencies — this may take a few minutes..."
+    Write-Info "Compiling cryptographic dependencies - this may take a few minutes..."
 
     if (-not (Test-Path "$ScriptRoot\Cargo.toml")) {
         Write-Fail "Cargo.toml not found. Run this script from the isotope project root directory."
@@ -216,7 +215,7 @@ function Build-Isotope {
     }
 }
 
-# ── Install binary to user PATH ────────────────────────────────────────────────
+# -- Install binary to user PATH ------------------------------------------------
 function Install-Binary {
     if ($SkipInstall) { Write-Warn "Skipping binary install (--SkipInstall flag)."; return }
 
@@ -244,13 +243,13 @@ function Install-Binary {
     Write-Success "Installed: $InstallDir\isotope.exe"
 }
 
-# ── Generate Quick-Start Scripts ───────────────────────────────────────────────
+# -- Generate Quick-Start Scripts -----------------------------------------------
 function Generate-QuickStart {
     Write-Step "Generating Quick-Start Scripts"
 
-    # ── Server script ──────────────────────────────────────────────────────────
+    # -- Server script ----------------------------------------------------------
     @'
-# ISOTOPE — Start Hub (Server) Mode
+# ISOTOPE - Start Hub (Server) Mode
 param(
     [int]$Port = 7878,
     [string]$IdentityFile = "server.id"
@@ -261,9 +260,9 @@ Write-Host ""
 & isotope server --port $Port --identity $IdentityFile
 '@ | Set-Content -Path "$ScriptRoot\start-server.ps1" -Encoding UTF8
 
-    # ── Client script ──────────────────────────────────────────────────────────
+    # -- Client script ----------------------------------------------------------
     @'
-# ISOTOPE — Start Client (Connect) Mode
+# ISOTOPE - Start Client (Connect) Mode
 param(
     [Parameter(Mandatory=$true)]  [string]$Address,
     [Parameter(Mandatory=$true)]  [string]$Username,
@@ -280,9 +279,9 @@ Write-Host ""
     --identity $IdentityFile
 '@ | Set-Content -Path "$ScriptRoot\start-client.ps1" -Encoding UTF8
 
-    # ── Ephemeral script ───────────────────────────────────────────────────────
+    # -- Ephemeral script -------------------------------------------------------
     @'
-# ISOTOPE — Start Ephemeral (Zero-Trace) Client
+# ISOTOPE - Start Ephemeral (Zero-Trace) Client
 param(
     [Parameter(Mandatory=$true)]  [string]$Address,
     [Parameter(Mandatory=$true)]  [string]$Username,
@@ -298,9 +297,9 @@ Write-Host ""
     --temp
 '@ | Set-Content -Path "$ScriptRoot\start-ephemeral.ps1" -Encoding UTF8
 
-    # ── Tor status checker ─────────────────────────────────────────────────────
+    # -- Tor status checker -----------------------------------------------------
     @'
-# ISOTOPE — Check Tor Connectivity
+# ISOTOPE - Check Tor Connectivity
 Write-Host "[*] Checking Tor SOCKS proxy on 127.0.0.1:9050..." -ForegroundColor Cyan
 $TorTest = Test-NetConnection -ComputerName 127.0.0.1 -Port 9050 -WarningAction SilentlyContinue
 if ($TorTest.TcpTestSucceeded) {
@@ -326,14 +325,14 @@ try {
 '@ | Set-Content -Path "$ScriptRoot\check-tor.ps1" -Encoding UTF8
 
     Write-Success "Quick-start scripts created:"
-    Write-Host "  -> start-server.ps1    — Launch ISOTOPE as a Hub/Server" -ForegroundColor Green
-    Write-Host "  -> start-client.ps1    — Connect to an existing Hub" -ForegroundColor Green
-    Write-Host "  -> start-ephemeral.ps1 — Connect with zero-trace ephemeral mode" -ForegroundColor Green
-    Write-Host "  -> start-tor.ps1       — Start the Tor service" -ForegroundColor Green
-    Write-Host "  -> check-tor.ps1       — Verify Tor is routing correctly" -ForegroundColor Green
+    Write-Host "  -> start-server.ps1    - Launch ISOTOPE as a Hub/Server" -ForegroundColor Green
+    Write-Host "  -> start-client.ps1    - Connect to an existing Hub" -ForegroundColor Green
+    Write-Host "  -> start-ephemeral.ps1 - Connect with zero-trace ephemeral mode" -ForegroundColor Green
+    Write-Host "  -> start-tor.ps1       - Start the Tor service" -ForegroundColor Green
+    Write-Host "  -> check-tor.ps1       - Verify Tor is routing correctly" -ForegroundColor Green
 }
 
-# ── Print Summary ──────────────────────────────────────────────────────────────
+# -- Print Summary --------------------------------------------------------------
 function Print-Summary {
     Write-Divider
     Write-Host ""
@@ -358,7 +357,7 @@ function Print-Summary {
     Write-Divider
 }
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+# -- Main -----------------------------------------------------------------------
 Write-Banner
 
 if (-not (Test-Admin)) {
